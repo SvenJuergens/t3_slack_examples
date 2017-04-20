@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2014-06-02T11:48:25Z" product-name="t3_slack_examples">
+        <header/>
+        <body>
+            <trans-unit id="newExtensionInstallation" xml:space="preserve">
+                <source>neue Extension installiert auf %1$s</source>
+            </trans-unit>
+            <trans-unit id="newSysLogEntry" xml:space="preserve">
+				<source>System error on %1$s</source>
+			</trans-unit>
+			 <trans-unit id="feManagerNewUser" xml:space="preserve">
+                <source>Es hat sich ein neuer User auf %1$s registriert.</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

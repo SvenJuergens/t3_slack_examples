@@ -1,5 +1,5 @@
 <?php
-namespace SvenJuergens\T3SlackExamples\Utility;
+namespace SvenJuergens\T3SlackExamples\Slot;
 
 /**
  * This file is part of the TYPO3 CMS project.
@@ -15,18 +15,27 @@ namespace SvenJuergens\T3SlackExamples\Utility;
  */
 use SvenJuergens\T3Slack\Service\T3Slack;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-class Examples
+class FeManagerFinalCreateAfterPersist
 {
 
     /**
+     * Send a Message , if a new User has completed the Registration
+     *
      * @param $user \In2code\Femanager\Domain\Model\User;
      * @param $action
      * @param $parentObject \In2code\Femanager\Controller\AbstractController
      */
     public function feManagerNewUser($user, $action, $parentObject)
     {
-            $client = GeneralUtility::makeInstance(T3Slack::class);
+        $client = GeneralUtility::makeInstance(T3Slack::class);
+        $feManagerNewUser = LocalizationUtility::translate(
+            'feManagerNewUser',
+            't3_slack_examples',
+            GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST')
+        );
+        try {
             $client->withIcon(':+1:')->attach([
                 'fallback' => 'New User',
                 'color' => 'good',
@@ -36,6 +45,9 @@ class Examples
                         'value' => $user->getEmail()
                     ]
                 ]
-            ])->send('Es hat sich ein neuer auf ' . GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST') . ' User registriert.');
+            ])->send($feManagerNewUser);
+        } catch (\Exception $e) {
+            GeneralUtility::devLog($e->getMessage(), 't3_slack_examples', 3);
+        }
     }
 }

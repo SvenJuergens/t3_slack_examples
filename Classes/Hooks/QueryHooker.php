@@ -17,6 +17,7 @@ use SvenJuergens\T3Slack\Service\T3Slack;
 use TYPO3\CMS\Core\Database\PostProcessQueryHookInterface;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class QueryHooker implements PostProcessQueryHookInterface
 {
@@ -33,9 +34,7 @@ class QueryHooker implements PostProcessQueryHookInterface
      * @return void
      */
     public function exec_SELECTquery_postProcessAction(&$select_fields, &$from_table, &$where_clause, &$groupBy, &$orderBy, &$limit, \TYPO3\CMS\Core\Database\DatabaseConnection $parentObject)
-    {
-
-    }
+    {}
 
     /**
      * Post-processor for the exec_INSERTquery method.
@@ -48,25 +47,29 @@ class QueryHooker implements PostProcessQueryHookInterface
      */
     public function exec_INSERTquery_postProcessAction(&$table, array &$fieldsValues, &$noQuoteFields, \TYPO3\CMS\Core\Database\DatabaseConnection $parentObject)
     {
-        if ($table !== 'tx_dmdeveloperlog_domain_model_logentry') {
+        if ($table !== 'sys_log') {
             return;
         }
-        if ($fieldsValues['severity'] < 3) {
+        if ($fieldsValues['error']  != "2") {
             return;
         }
-        $client = GeneralUtility::makeInstance(T3Slack::class);
-        $client->attach([
-            'fallback' => 'System Error',
-            'text' => 'System Error',
-            'color' => 'danger',
-            'fields' => [
-                [
-                    'title' => $fieldsValues['extkey'],
-                    'value' => $fieldsValues['message'],
-                    'short' => false // whether the field is short enough to sit side-by-side other fields, defaults to false
-                ]
-            ]
-        ])->send('New alert from the monitoring system'); // no message, but can be provided if you'd like
+        $newSysLogEntry =
+            LocalizationUtility::translate(
+                'newSysLogEntry',
+                't3_slack_examples',
+                [0 => GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST')]
+            );
+           $client = GeneralUtility::makeInstance(T3Slack::class);
+           $client->withIcon(':flushed:')->attach([
+               'fallback' => 'System Error',
+               'color' => 'danger',
+               'fields' => [
+                   [
+                       'title' => 'System Error',
+                       'value' => $fieldsValues['details']
+                   ]
+               ]
+           ])->send($newSysLogEntry);
     }
 
     /**
