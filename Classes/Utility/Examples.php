@@ -27,6 +27,15 @@ class Examples
     public function feManagerNewUser($user, $action, $parentObject)
     {
             $client = GeneralUtility::makeInstance(T3Slack::class);
-            $client->send('neuer User: ' . $user->getUsername() . ':' . $user->getEmail());
+            $client->withIcon(':+1:')->attach([
+                'fallback' => 'New User',
+                'color' => 'good',
+                'fields' => [
+                    [
+                        'title' => htmlspecialchars($user->getFirstName() . ' ' . $user->getLastName()),
+                        'value' => $user->getEmail()
+                    ]
+                ]
+            ])->send('Es hat sich ein neuer auf ' . GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST') . ' User registriert.');
     }
 }
